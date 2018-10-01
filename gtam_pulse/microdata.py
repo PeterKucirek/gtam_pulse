@@ -130,7 +130,7 @@ class PulseData:
 
             compressed, uncompressed = str(compressed.name) + '.gz', str(uncompressed.name)
 
-            raise FileExistsError(f"Could not '{uncompressed}' or '{uncompressed}' in folder '{str(run_folder)}'")
+            raise FileExistsError(f"Could not find '{uncompressed}' or '{uncompressed}' in folder '{str(run_folder)}'")
 
         persons_fp = _prep_file('persons.csv')
         trips_fp = _prep_file('trips.csv')
