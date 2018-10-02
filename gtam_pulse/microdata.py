@@ -153,6 +153,7 @@ class PulseData:
         if data.zones_loaded:
             data._init_imped(coord_unit=coord_unit)
 
+        data._verify_integrity()
         data._link_all()
 
         return data
@@ -284,6 +285,14 @@ class PulseData:
         self._impedances = pd.DataFrame(imped)
         self._impedances.index.names = ['o', 'd']
 
+    def _verify_integrity(self):
+        if self.households_loaded and self.persons_loaded:
+            hh_sizes = self.persons.household_id.value_counts(dropna=False)
+            isin = hh_sizes.index.isin(self.households.HouseholdID)
+            n_homeless = hh_sizes.loc[~isin].sum()
+            if n_homeless > 0:
+                raise RuntimeError("Found %s persons with invalid or missing household IDs" % n_homeless)
+
     def _link_all(self):
 
         if self.households_loaded and self.persons_loaded:
@@ -353,6 +362,8 @@ class PulseData:
             self.persons[f"school_{name}"] = definition.reindex(
                 self.persons.school_zone, fill_value=missing_value).values
             self.persons[f"school_{name}"] = self.persons[f"school_{name}"].astype('category')
+
+            self.persons[f"home_{name}"] = definition.reindex(self.persons.home_zone, fill_value=missing_value).values
 
         if self.trips_loaded:
             assert name not in self.trips
