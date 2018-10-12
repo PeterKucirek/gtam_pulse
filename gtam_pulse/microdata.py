@@ -111,7 +111,7 @@ class PulseData:
 
     @staticmethod
     def load_from_run(run_folder: Path, *, hh_file: Path = None, time_format: TimeFormat = TimeFormat.MINUTE_DELTA,
-                      zones_file: Path=None, coord_unit: float=0.001) -> 'PulseData':
+                      zones_file: Path=None, coord_unit: float=0.001, auto2transit_mode: str='DAT') -> 'PulseData':
         if not isinstance(run_folder, Path): run_folder = Path(run_folder)
         assert run_folder.exists()
         assert run_folder.is_dir()
@@ -154,7 +154,7 @@ class PulseData:
             data._init_imped(coord_unit=coord_unit)
 
         data._verify_integrity()
-        data._link_all()
+        data._link_all(auto2transit_mode)
 
         return data
 
@@ -293,7 +293,7 @@ class PulseData:
             if n_homeless > 0:
                 raise RuntimeError("Found %s persons with invalid or missing household IDs" % n_homeless)
 
-    def _link_all(self):
+    def _link_all(self, auto2transit_mode: str):
 
         if self.households_loaded and self.persons_loaded:
             self.persons.link_to(self.households, 'household', on_self='household_id', on_other='HouseholdID')
@@ -314,8 +314,9 @@ class PulseData:
                 self.trip_modes.link_to(self.households, 'household', on_self='household_id', on_other='HouseholdID')
 
         if self.station_trips_loaded and self.trips_loaded and self.trip_modes_loaded:
+            self.station_trips['mode'] = auto2transit_mode
             self.station_trips.link_to(self.trips, 'trip', on=['household_id', 'person_id', 'trip_id'])
-            self.station_trips.link_to(self.trip_modes, 'mode_data', on=['household_id', 'person_id', 'trip_id'])
+            self.station_trips.link_to(self.trip_modes, 'trip_mode', on=['household_id', 'person_id', 'trip_id', 'mode'])
 
         if self.zones_loaded:
             if self.trips_loaded:
@@ -395,6 +396,8 @@ class PulseData:
             trips['repetitions'] = trips.modes.sum('weight')
             trip_modes['full_weight'] = trip_modes.weight / trip_modes.trip.repetitions * trip_modes.trip.weight
 
-        # TODO: Reweight other tables (like stations and facilitate passengers)
+            if self.station_trips_loaded:
+                station_trips = self.station_trips
+                station_trips['full_weight'] = (station_trips.weight / station_trips.trip_mode.weight) * station_trips.trip_mode.full_weight
 
     # endregion
