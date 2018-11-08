@@ -316,7 +316,7 @@ class PulseData:
         if self.station_trips_loaded and self.trips_loaded and self.trip_modes_loaded:
             self.station_trips['mode'] = auto2transit_mode
             self.station_trips.link_to(self.trips, 'trip', on=['household_id', 'person_id', 'trip_id'])
-            self.station_trips.link_to(self.trip_modes, 'trip_mode', on=['household_id', 'person_id', 'trip_id', 'mode'])
+            # self.station_trips.link_to(self.trip_modes, 'trip_mode', on=['household_id', 'person_id', 'trip_id', 'mode'])
 
         if self.zones_loaded:
             if self.trips_loaded:
@@ -396,8 +396,8 @@ class PulseData:
             trips['repetitions'] = trips.modes.sum('weight')
             trip_modes['full_weight'] = trip_modes.weight / trip_modes.trip.repetitions * trip_modes.trip.weight
 
-            if self.station_trips_loaded:
-                station_trips = self.station_trips
-                station_trips['full_weight'] = (station_trips.weight / station_trips.trip_mode.weight) * station_trips.trip_mode.full_weight
+            # if self.station_trips_loaded:
+            #     station_trips = self.station_trips
+            #     station_trips['full_weight'] = (station_trips.weight / station_trips.trip_mode.weight) * station_trips.trip_mode.full_weight
 
     # endregion
