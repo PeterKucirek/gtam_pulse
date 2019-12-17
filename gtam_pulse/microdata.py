@@ -6,8 +6,9 @@ import numpy as np
 import numexpr as ne
 import attr
 
-from balsa import LinkedDataFrame, read_mdf, peek_mdf
+from balsa import read_mdf, peek_mdf
 from balsa.models.analyses import distance_matrix
+from cheval import LinkedDataFrame
 
 from .constants import TimeFormat
 
@@ -162,32 +163,32 @@ class PulseData:
                      tstations_fp: Path=None, tpass_fp: Path=None, zones_fp: Path=None):
 
         if hh_fp is not None:
-            table = LinkedDataFrame(pd.read_csv(hh_fp, dtype=self._household_spec))
+            table = LinkedDataFrame.read_csv(hh_fp, dtype=self._household_spec)
             print(f"Loaded {len(table)} households")
             self._households = table
 
         if person_fp is not None:
-            table = LinkedDataFrame(pd.read_csv(person_fp, dtype=self._persons_spec))
+            table = LinkedDataFrame.read_csv(person_fp, dtype=self._persons_spec)
             print(f"Loaded {len(table)} persons")
             self._persons = table
 
         if trips_fp is not None:
-            table = LinkedDataFrame(pd.read_csv(trips_fp, dtype=self._trips_spec))
+            table = LinkedDataFrame.read_csv(trips_fp, dtype=self._trips_spec)
             print(f"Loaded {len(table)} trips")
             self._trips = table
 
         if tmodes_fp is not None:
-            table = LinkedDataFrame(pd.read_csv(tmodes_fp, dtype=self._tmodes_spec))
+            table = LinkedDataFrame.read_csv(tmodes_fp, dtype=self._tmodes_spec)
             print(f"Loaded {len(table)} trip-modes")
             self._trip_modes = table
 
         if tstations_fp is not None:
-            table = LinkedDataFrame(pd.read_csv(tstations_fp, dtype=self._tmodes_spec))
+            table = LinkedDataFrame.read_csv(tstations_fp, dtype=self._tmodes_spec)
             print(f"Loaded {len(table)} station trips")
             self._station_trips = table
 
         if tpass_fp is not None:
-            table = LinkedDataFrame(pd.read_csv(tpass_fp, dtype=self._passenger_spec))
+            table = LinkedDataFrame.read_csv(tpass_fp, dtype=self._passenger_spec)
             print(f"Loaded {len(table)} facilitate passenger trips")
             self._passenger_trips = table
 
@@ -294,6 +295,8 @@ class PulseData:
                 raise RuntimeError("Found %s persons with invalid or missing household IDs" % n_homeless)
 
     def _link_all(self, auto2transit_mode: str):
+
+        print("Precomputing table linkages")
 
         if self.households_loaded and self.persons_loaded:
             self.persons.link_to(self.households, 'household', on_self='household_id', on_other='HouseholdID')

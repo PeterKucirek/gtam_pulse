@@ -5,7 +5,7 @@ setup(
     author="PeterKucirek",
     version="0.1-dev",
     packages=find_packages(),
-    python_requires='>3.6',
+    python_requires='>=3.6',
 
     requires=[
         'balsa',
