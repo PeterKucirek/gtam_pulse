@@ -6,8 +6,7 @@ import numpy as np
 import numexpr as ne
 import attr
 
-from balsa import read_mdf, peek_mdf
-from balsa.models.analyses import distance_matrix
+from balsa import read_mdf, peek_mdf, distance_matrix
 from cheval import LinkedDataFrame
 
 from .constants import TimeFormat
