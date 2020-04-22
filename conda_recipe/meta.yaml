@@ -1,0 +1,19 @@
+package:
+  name: gtam_pulse
+  version: "0.1.0"
+
+source:
+  path: ../
+
+build:
+  number: auto
+  noarch: python
+
+requirements:
+  run:
+    - python>=3.6
+    - wsp-balsa
+    - pandas
+    - numpy
+    - numexpr
+    - attrs
